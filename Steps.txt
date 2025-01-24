@@ -7,4 +7,4 @@
 7. run `ngrok config add-authtoken 2s3eabFAmpeWevmHiNSanOJV9yx_25wSakZ6CouMoSjpCbjPv` to add my authtoken
 8. run `npm run register` to register each command
 9. run `npm run start` to start the server
-10. run `ngrok http 3000` to expose the server to the internet
+10. run `ngrok http --url=jennet-relaxing-directly.ngrok-free.app 3000` to expose the server to the internet
