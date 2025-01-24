@@ -1,0 +1,10 @@
+1. Install Git
+2. Install Node.js
+3. Clone the repository
+4. run `npm install` to install the dependencies
+5. setup the .env file
+6. install ngrok with `choco install ngrok` as an admin
+7. run `ngrok config add-authtoken 2s3eabFAmpeWevmHiNSanOJV9yx_25wSakZ6CouMoSjpCbjPv` to add my authtoken
+8. run `npm run register` to register each command
+9. run `npm run start` to start the server
+10. run `ngrok http 3000` to expose the server to the internet
