@@ -212,9 +212,11 @@ app.post(
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.post('/startUpdate', (req, res) => {
+app.post('/startUpdate', async function (req, res) {
 	const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/@original`;
 	const message = req.body.message;
+	const startUpdateDelay = 3000;
+	await new Promise(resolve => setTimeout(resolve, startUpdateDelay));
 	try {
 		DiscordRequest(endpoint, {
 			method: 'PATCH',

@@ -4,6 +4,7 @@ import { DiscordRequest } from './utils.js';
 const emptyServerInterval = 1000 * 15; // 15 seconds
 const emptyServerThreshold = 1000 * 60 * 15; // 15 minutes
 const shutdownDelay = 1000 * 40; // 40 seconds
+const safeShutdownDelay = 1000 * 3; // 3 seconds
 
 let serverOnline = false;
 
@@ -121,8 +122,10 @@ export async function commandShutdown(token) {
 		serverOnline = true;
 		return 'Players are still online!';
 	} else {
-		stopServerAfterDelay(shutdownDelay, token);
-		return 'Shutting down the server...';
+		// stopServerAfterDelay(shutdownDelay, token);
+		// return 'Shutting down the server in 40 seconds...';
+		saveThenSafeShutdown(safeShutdownDelay, token);
+		return 'Saving the world and shutting down the server...';
 	}
 }
 
@@ -153,6 +156,85 @@ async function shutdownServer() {
 		});
 
 	return message;
+}
+
+async function saveThenSafeShutdown(delay, token) {
+	let message;
+
+	await silentSave();
+
+	let waitTime = Math.floor(delay / 1000);
+
+	let data = JSON.stringify({
+		waittime: waitTime,
+		message: 'Server is shutting down'
+	});
+
+	const url = process.env.REST_URL + 'shutdown';
+	let options = {
+		method: 'POST',
+		headers: {
+			Authorization:
+				`Basic ` +
+				new Buffer.from(
+					process.env.REST_USERNAME + ':' + process.env.REST_PASSWORD
+				).toString('base64'),
+			'Content-Type': 'application/json'
+		},
+		body: data
+	};
+
+	await fetch(url, options)
+		.then(response => {
+			if (response.status === 200) {
+				message = 'Server has been shut down';
+				serverOnline = false;
+			} else {
+				message = 'Error shutting down server';
+				serverOnline = true;
+			}
+		})
+		.catch(err => {
+			console.log(err);
+			message = 'Error shutting down server';
+			serverOnline = true;
+		});
+
+	await new Promise(resolve => setTimeout(resolve, delay));
+
+	const endpoint = `webhooks/${process.env.APP_ID}/${token}/messages/@original`;
+	try {
+		await DiscordRequest(endpoint, {
+			method: 'PATCH',
+			body: {
+				content: message
+			}
+		});
+	} catch (err) {
+		console.error(err);
+	}
+}
+
+async function silentSave() {
+	const url = process.env.REST_URL + 'save';
+	let options = {
+		method: 'POST',
+		headers: {
+			Authorization:
+				`Basic ` +
+				new Buffer.from(
+					process.env.REST_USERNAME + ':' + process.env.REST_PASSWORD
+				).toString('base64')
+		}
+	};
+
+	await fetch(url, options)
+		.then(response => {
+			console.log('Server has been saved');
+		})
+		.catch(err => {
+			console.log(err);
+		});
 }
 
 async function stopServerAfterDelay(delay, token) {
