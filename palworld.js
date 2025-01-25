@@ -104,7 +104,7 @@ export async function startServer(token) {
 
 async function confirmSafeServerStart(token) {
 	// console.log(token);
-	const bat = spawn('cmd.exe', ['/c', 'StartPalServer.bat', token]);
+	const bat = spawn('bash', ['StartPalServer.sh', token]);
 	bat.stdout.on('data', data => {
 		console.log(data.toString());
 	});
@@ -289,7 +289,7 @@ async function emptyServerShutdown() {
 	}
 }
 
-async function sendMessageToChannel(message) {
+export async function sendMessageToChannel(message) {
 	const endpoint = `channels/${process.env.BOT_CHANNEL_ID}/messages`;
 	try {
 		await DiscordRequest(endpoint, {

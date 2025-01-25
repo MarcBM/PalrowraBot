@@ -15,7 +15,8 @@ import {
 	getServerStatus,
 	getPlayerList,
 	startServer,
-	commandShutdown
+	commandShutdown,
+	sendMessageToChannel
 } from './palworld.js';
 
 // Create an express app
@@ -215,7 +216,7 @@ app.use(bodyParser.json());
 app.post('/startUpdate', async function (req, res) {
 	const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/@original`;
 	const message = req.body.message;
-	const startUpdateDelay = 3000;
+	const startUpdateDelay = 5000;
 	await new Promise(resolve => setTimeout(resolve, startUpdateDelay));
 	try {
 		DiscordRequest(endpoint, {
@@ -233,3 +234,9 @@ app.post('/startUpdate', async function (req, res) {
 app.listen(PORT, () => {
 	console.log('Listening on port', PORT);
 });
+
+try {
+	await sendMessageToChannel('I have AWOKEN!');
+} catch (err) {
+	console.error(err);
+}
