@@ -1,5 +1,5 @@
 1. Install Git
-2. Install Node.js
+2. Install Node.js & NPM
 3. Clone the repository
 4. run `npm install` to install the dependencies
 5. setup the .env file
