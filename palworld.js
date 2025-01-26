@@ -169,11 +169,14 @@ async function saveThenSafeShutdown(delay, token) {
 		console.error(err);
 	}
 
+	let message;
+
 	try {
 		let waitTime = Math.floor(delay / 1000);
-		await safeShutdown(waitTime);
+		message = await safeShutdown(waitTime);
 	} catch (err) {
 		console.error(err);
+		message = 'Error shutting down server';
 	}
 
 	await new Promise(resolve => setTimeout(resolve, delay));
