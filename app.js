@@ -247,6 +247,10 @@ app.post(
 
 		// Handle requests from interactive components
 		if (type === InteractionType.MESSAGE_COMPONENT) {
+			// TODO:
+			// Delete the old message by packaging the message id in the initial response.
+			// This will likely need to be done for this response too.
+			// Respond to this message with another select box, this time asking for how long.
 			const componentId = data.custom_id;
 
 			if (componentId === 'kick_select_player') {
