@@ -273,7 +273,7 @@ async function stopServerAfterDelay(delay, token) {
 	}
 }
 
-async function monitorEmptyServer() {
+export async function monitorEmptyServer() {
 	await new Promise(resolve => setTimeout(resolve, emptyServerInterval));
 
 	let lastTimePlayersSeen = Date.now();

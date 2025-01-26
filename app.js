@@ -19,7 +19,8 @@ import {
 	commandShutdown,
 	safeShutdown,
 	sendMessageToChannel,
-	sendMessageToServer
+	sendMessageToServer,
+	monitorEmptyServer
 } from './palworld.js';
 
 // Create an express app
@@ -281,6 +282,10 @@ try {
 try {
 	let message = await getServerStatus();
 	console.log(message);
+	if (message.contains('online')) {
+		console.log('Server is online, starting monitor...');
+		monitorEmptyServer();
+	}
 } catch (err) {
 	console.error(err);
 }
