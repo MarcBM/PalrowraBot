@@ -21,7 +21,8 @@ import {
 	sendMessageToChannel,
 	sendMessageToServer,
 	monitorEmptyServer,
-	commandKick
+	commandKick,
+	buildKickOptions
 } from './palworld.js';
 
 // Create an express app
@@ -229,24 +230,7 @@ app.post(
 										{
 											type: MessageComponentTypes.STRING_SELECT,
 											custom_id: 'kick_select_player',
-											options: [
-												{
-													label: 'Vuldyn',
-													value: 'steam_user_id_something'
-												},
-												{
-													label: 'Juan Sina',
-													value: 'steam_user_id_something_else'
-												},
-												{
-													label: 'Althaline',
-													value: 'steam_user_id_something_else_again'
-												},
-												{
-													label: 'Never mind!',
-													value: 'cancel'
-												}
-											]
+											options: buildKickOptions()
 										}
 									]
 								}
@@ -271,7 +255,7 @@ app.post(
 			if (componentId === 'kick_select_player') {
 				const originalMessageId = req.body.message.id;
 				const selectedOption = data.values[0];
-				const userID = req.body.member.user.id;
+				const username = req.body.member.user.username;
 
 				// TODO: Decipher the selectedOption - it will be a steam userID, but we want the steam name. It could also be 'cancel'.
 				const playerName = selectedOption; // TODO: Get the player name from the player ID.
@@ -291,7 +275,7 @@ app.post(
 					return res.send({
 						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 						data: {
-							content: `@${userID} has cancelled the kick command.`
+							content: `${username} has cancelled the kick command.`
 						}
 					});
 				} else {
@@ -350,7 +334,7 @@ app.post(
 				const originalMessageId = req.body.message.id;
 				const selectedOption = data.values[0];
 				const playerToKick = componentId.replace('kick_select_time', '');
-				const userID = req.body.member.user.id;
+				const username = req.body.member.user.username;
 
 				const playerName = playerToKick; // TODO: Get the player name from the player ID.
 
@@ -371,17 +355,17 @@ app.post(
 					return res.send({
 						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 						data: {
-							content: `@${userID} has cancelled the kick command.`
+							content: `${username} has cancelled the kick command.`
 						}
 					});
 				} else {
 					// Kick the player
-					commandKick(playerToKick, selectedOption, userID);
+					commandKick(playerToKick, selectedOption, username);
 					let message;
 					if (selectedOption === '0') {
-						message = `@${userID} is kicking ${playerName} from the server!`;
+						message = `${username} is kicking ${playerName} from the server!`;
 					} else {
-						message = `@${userID} will kick ${playerName} from the server in ${selectedOption} minutes!`;
+						message = `${username} will kick ${playerName} from the server in ${selectedOption} minutes!`;
 					}
 					return res.send({
 						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,

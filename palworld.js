@@ -8,6 +8,8 @@ const safeShutdownDelay = 1000 * 3; // 3 seconds
 
 let serverOnline = false;
 
+let onlinePlayers = [];
+
 export function isServerOnline() {
 	return serverOnline;
 }
@@ -76,6 +78,8 @@ export async function getPlayerList() {
 		.then(response => response.json())
 		.then(data => {
 			let players = data.players;
+			// Update the list of online players
+			updatePlayerList(players);
 			// console.log(players.length);
 			if (players.length === 0) {
 				message = 'No players are currently online';
@@ -95,12 +99,44 @@ export async function getPlayerList() {
 	return message;
 }
 
+function updatePlayerList(players) {
+	let newOnlinePlayers = [];
+	players.forEach(player => {
+		newOnlinePlayers.push({
+			name: player.name,
+			steamID: player.userId
+		});
+	});
+
+	onlinePlayers = newOnlinePlayers;
+}
+
+export function buildKickOptions() {
+	let options = [];
+	onlinePlayers.forEach(player => {
+		options.push({
+			label: player.name,
+			value: player.steamID
+		});
+	});
+
+	options.push({
+		label: 'Nevermind!',
+		value: 'cancel'
+	});
+
+	return options;
+}
+
 export async function commandKick(playerID, delay, userID) {
 	// Make sure the server is running
+
+	// Send a message to the server that the player is going to be kicked.
 	console.log('Kicking player: ' + playerID);
 
 	// Wait for the given delay
-	const waitTime = delay * 1000;
+	const waitTime = delay === '0' ? 5000 : delay * 1000 * 60;
+	console.log('Waiting for ' + waitTime + ' milliseconds...');
 	await new Promise(resolve => setTimeout(resolve, waitTime));
 
 	console.log('Kicking player: ' + playerID + ' finished!');
