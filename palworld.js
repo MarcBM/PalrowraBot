@@ -95,6 +95,17 @@ export async function getPlayerList() {
 	return message;
 }
 
+export async function commandKick(playerID, delay, userID) {
+	// Make sure the server is running
+	console.log('Kicking player: ' + playerID);
+
+	// Wait for the given delay
+	const waitTime = delay * 1000;
+	await new Promise(resolve => setTimeout(resolve, waitTime));
+
+	console.log('Kicking player: ' + playerID + ' finished!');
+}
+
 export async function startServer(token) {
 	// Check to see if the server is already running.
 	const status = await getServerStatus();
@@ -281,13 +292,13 @@ export async function monitorEmptyServer() {
 
 	let lastTimePlayersSeen = Date.now();
 	while (serverOnline) {
-		console.log('Checking for empty server...');
+		// console.log('Checking for empty server...');
 		const players = await getPlayerList();
 		if (players.includes('Online Players')) {
-			console.log('Players are online, resetting timer...');
+			// console.log('Players are online, resetting timer...');
 			lastTimePlayersSeen = Date.now();
 		} else {
-			console.log('No players online...');
+			// console.log('No players online...');
 		}
 
 		const currentTime = Date.now();

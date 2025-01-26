@@ -207,38 +207,52 @@ app.post(
 
 			// "kick" command
 			if (name === 'kick') {
-				// A message with a select menu
-				return res.send({
-					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-					data: {
-						content: 'Who would you like to kick?',
-						components: [
-							{
-								type: MessageComponentTypes.ACTION_ROW,
-								components: [
-									{
-										type: MessageComponentTypes.STRING_SELECT,
-										custom_id: 'kick_select_player',
-										options: [
-											{
-												label: 'Vuldyn',
-												value: 'steam_user_id_something'
-											},
-											{
-												label: 'Juan Sina',
-												value: 'steam_user_id_something_else'
-											},
-											{
-												label: 'Althaline',
-												value: 'steam_user_id_something_else_again'
-											}
-										]
-									}
-								]
-							}
-						]
-					}
-				});
+				if (!isServerOnline()) {
+					return res.send({
+						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+						data: {
+							content: 'The server is currently offline.'
+						}
+					});
+				} else {
+					// A message with a select menu
+					// TODO: Build select menu only from online players.
+					return res.send({
+						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+						data: {
+							content: 'Who would you like to kick?',
+							components: [
+								{
+									type: MessageComponentTypes.ACTION_ROW,
+									components: [
+										{
+											type: MessageComponentTypes.STRING_SELECT,
+											custom_id: 'kick_select_player',
+											options: [
+												{
+													label: 'Vuldyn',
+													value: 'steam_user_id_something'
+												},
+												{
+													label: 'Juan Sina',
+													value: 'steam_user_id_something_else'
+												},
+												{
+													label: 'Althaline',
+													value: 'steam_user_id_something_else_again'
+												},
+												{
+													label: 'Never mind!',
+													value: 'cancel'
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					});
+				}
 			}
 
 			console.error(`unknown command: ${name}`);
@@ -256,7 +270,10 @@ app.post(
 			if (componentId === 'kick_select_player') {
 				const originalMessageId = req.body.message.id;
 				const selectedOption = data.values[0];
-				const userId = req.body.member.user.id;
+				const userID = req.body.member.user.id;
+
+				// TODO: Decipher the selectedOption - it will be a steam userID, but we want the steam name. It could also be 'cancel'.
+				const playerName = selectedOption; // TODO: Get the player name from the player ID.
 
 				// Delete the original message
 				const deleteEndpoint = `channels/${process.env.BOT_CHANNEL_ID}/messages/${originalMessageId}`;
@@ -269,10 +286,109 @@ app.post(
 					console.error(err);
 				}
 
-				return res.send({
-					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-					data: { content: `<@${userId}> selected ${selectedOption}` }
-				});
+				if (selectedOption === 'cancel') {
+					return res.send({
+						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+						data: {
+							content: `@${userID} has cancelled the kick command.`
+						}
+					});
+				} else {
+					return res.send({
+						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+						data: {
+							content: `When would you like to kick ${playerName}?`,
+							components: [
+								{
+									type: MessageComponentTypes.ACTION_ROW,
+									components: [
+										{
+											type: MessageComponentTypes.STRING_SELECT,
+											// Send the player ID in the custom_id
+											custom_id: 'kick_select_time' + selectedOption,
+											options: [
+												{
+													label: 'Now',
+													value: '0'
+												},
+												{
+													label: 'In 15 minutes',
+													value: '15'
+												},
+												{
+													label: 'In 30 minutes',
+													value: '30'
+												},
+												{
+													label: 'In 45 minutes',
+													value: '45'
+												},
+												{
+													label: 'In 60 minutes',
+													value: '60'
+												},
+												{
+													label: 'In 90 minutes',
+													value: '90'
+												},
+												{
+													label: 'Never mind!',
+													value: 'cancel'
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					});
+				}
+			}
+
+			if (componentId.includes('kick_select_time')) {
+				const originalMessageId = req.body.message.id;
+				const selectedOption = data.values[0];
+				const playerToKick = componentId.replace('kick_select_time', '');
+				const userID = req.body.member.user.id;
+
+				const playerName = playerToKick; // TODO: Get the player name from the player ID.
+
+				// Handle the selected response. We either need to kick the player now, or in x minutes, or cancel.
+
+				// Delete the original message
+				const deleteEndpoint = `channels/${process.env.BOT_CHANNEL_ID}/messages/${originalMessageId}`;
+
+				try {
+					await DiscordRequest(deleteEndpoint, {
+						method: 'DELETE'
+					});
+				} catch (err) {
+					console.error(err);
+				}
+
+				if (selectedOption === 'cancel') {
+					return res.send({
+						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+						data: {
+							content: `@${userID} has cancelled the kick command.`
+						}
+					});
+				} else {
+					// Kick the player
+					commandKick(playerToKick, selectedOption, userID);
+					let message;
+					if (selectedOption === '0') {
+						message = `@${userID} is kicking ${playerName} from the server!`;
+					} else {
+						message = `@${userID} will kick ${playerName} from the server in ${selectedOption} minutes!`;
+					}
+					return res.send({
+						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+						data: {
+							content: message
+						}
+					});
+				}
 			}
 		}
 
