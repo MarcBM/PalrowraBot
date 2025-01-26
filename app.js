@@ -254,8 +254,6 @@ app.post(
 			const componentId = data.custom_id;
 
 			if (componentId === 'kick_select_player') {
-				console.log(req.body);
-
 				const selectedOption = data.values[0];
 				const userId = req.body.member.user.id;
 
