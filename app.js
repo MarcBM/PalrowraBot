@@ -237,8 +237,10 @@ app.post('/startUpdate', async function (req, res) {
 app.post('/macRestart', async function (req, res) {
 	try {
 		await sendMessageToChannel('Going down for a powernap in 10 minutes!');
+		res.status(200).send('OK');
 	} catch (err) {
 		console.error(err);
+		res.status(500).send('Error');
 	}
 	console.log('Server is currenly online:', isServerOnline());
 	if (isServerOnline()) {
@@ -268,8 +270,17 @@ app.listen(PORT, () => {
 	console.log('Listening on port', PORT);
 });
 
+// Tell discord that the bot is online.
 try {
 	await sendMessageToChannel('I have AWOKEN!');
+} catch (err) {
+	console.error(err);
+}
+
+// Check to see if the server is currently running.
+try {
+	let message = await getServerStatus();
+	console.log(message);
 } catch (err) {
 	console.error(err);
 }
