@@ -218,7 +218,7 @@ app.post(
 								components: [
 									{
 										type: MessageComponentTypes.STRING_SELECT,
-										custom_id: 'kick_select_player' + req.body.message.id,
+										custom_id: 'kick_select_player',
 										options: [
 											{
 												label: 'Vuldyn',
@@ -253,8 +253,8 @@ app.post(
 			// Respond to this message with another select box, this time asking for how long.
 			const componentId = data.custom_id;
 
-			if (componentId.includes('kick_select_player')) {
-				const originalMessageId = componentId.replace('kick_select_player', '');
+			if (componentId === 'kick_select_player') {
+				const originalMessageId = req.body.message.id;
 				const selectedOption = data.values[0];
 				const userId = req.body.member.user.id;
 
