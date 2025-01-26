@@ -282,7 +282,7 @@ try {
 try {
 	let message = await getServerStatus();
 	console.log(message);
-	if (message.contains('online')) {
+	if (message.includes('online')) {
 		console.log('Server is online, starting monitor...');
 		monitorEmptyServer();
 	}
