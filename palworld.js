@@ -8,6 +8,10 @@ const safeShutdownDelay = 1000 * 3; // 3 seconds
 
 let serverOnline = false;
 
+export function isServerOnline() {
+	return serverOnline;
+}
+
 export async function getPublicIP() {
 	let retString;
 	await fetch('https://api.ipify.org?format=json')
@@ -159,46 +163,18 @@ async function shutdownServer() {
 }
 
 async function saveThenSafeShutdown(delay, token) {
-	let message;
+	try {
+		await silentSave();
+	} catch (err) {
+		console.error(err);
+	}
 
-	await silentSave();
-
-	let waitTime = Math.floor(delay / 1000);
-
-	let data = JSON.stringify({
-		waittime: waitTime,
-		message: 'Server is shutting down'
-	});
-
-	const url = process.env.REST_URL + 'shutdown';
-	let options = {
-		method: 'POST',
-		headers: {
-			Authorization:
-				`Basic ` +
-				new Buffer.from(
-					process.env.REST_USERNAME + ':' + process.env.REST_PASSWORD
-				).toString('base64'),
-			'Content-Type': 'application/json'
-		},
-		body: data
-	};
-
-	await fetch(url, options)
-		.then(response => {
-			if (response.status === 200) {
-				message = 'Server has been shut down';
-				serverOnline = false;
-			} else {
-				message = 'Error shutting down server';
-				serverOnline = true;
-			}
-		})
-		.catch(err => {
-			console.log(err);
-			message = 'Error shutting down server';
-			serverOnline = true;
-		});
+	try {
+		let waitTime = Math.floor(delay / 1000);
+		await safeShutdown(waitTime);
+	} catch (err) {
+		console.error(err);
+	}
 
 	await new Promise(resolve => setTimeout(resolve, delay));
 
@@ -235,6 +211,49 @@ async function silentSave() {
 		.catch(err => {
 			console.log(err);
 		});
+}
+
+export async function safeShutdown(delay) {
+	let message;
+
+	let warning = 'Server is shutting down in ' + delay + ' seconds!';
+
+	let data = JSON.stringify({
+		waittime: delay,
+		message: warning
+	});
+
+	const url = process.env.REST_URL + 'shutdown';
+	let options = {
+		method: 'POST',
+		headers: {
+			Authorization:
+				`Basic ` +
+				new Buffer.from(
+					process.env.REST_USERNAME + ':' + process.env.REST_PASSWORD
+				).toString('base64'),
+			'Content-Type': 'application/json'
+		},
+		body: data
+	};
+
+	await fetch(url, options)
+		.then(response => {
+			if (response.status === 200) {
+				message = 'Server has been shut down';
+				serverOnline = false;
+			} else {
+				message = 'Error shutting down server';
+				serverOnline = true;
+			}
+		})
+		.catch(err => {
+			console.log(err);
+			message = 'Error shutting down server';
+			serverOnline = true;
+		});
+
+	return message;
 }
 
 async function stopServerAfterDelay(delay, token) {
@@ -301,5 +320,37 @@ export async function sendMessageToChannel(message) {
 		console.log('Message sent to channel: ' + message);
 	} catch (err) {
 		console.error(err);
+	}
+}
+
+export async function sendMessageToServer(message) {
+	if (!serverOnline) {
+		return;
+	} else {
+		let data = JSON.stringify({
+			message: message
+		});
+
+		const url = process.env.REST_URL + 'announce';
+		let options = {
+			method: 'POST',
+			headers: {
+				Authorization:
+					`Basic ` +
+					new Buffer.from(
+						process.env.REST_USERNAME + ':' + process.env.REST_PASSWORD
+					).toString('base64'),
+				'Content-Type': 'application/json'
+			},
+			body: data
+		};
+
+		await fetch(url, options)
+			.then(response => {
+				console.log('Message sent to server: ' + message);
+			})
+			.catch(err => {
+				console.log(err);
+			});
 	}
 }

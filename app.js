@@ -11,12 +11,15 @@ import {
 } from 'discord-interactions';
 import { getRandomEmoji, DiscordRequest } from './utils.js';
 import {
+	isServerOnline,
 	getPublicIP,
 	getServerStatus,
 	getPlayerList,
 	startServer,
 	commandShutdown,
-	sendMessageToChannel
+	safeShutdown,
+	sendMessageToChannel,
+	sendMessageToServer
 } from './palworld.js';
 
 // Create an express app
@@ -229,6 +232,35 @@ app.post('/startUpdate', async function (req, res) {
 		console.error(err);
 	}
 	return res.status(200).send('OK');
+});
+
+app.post('/macRestart', async function (req, res) {
+	try {
+		await sendMessageToChannel('Going down for a powernap in 10 minutes!');
+	} catch (err) {
+		console.error(err);
+	}
+	if (isServerOnline()) {
+		try {
+			await sendMessageToServer('Going down for a powernap in 10 minutes!');
+		} catch (err) {
+			console.error(err);
+		}
+		await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 9));
+		try {
+			await safeShutdown(60);
+		} catch (err) {
+			console.error(err);
+		}
+		await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 1));
+	} else {
+		await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 10));
+	}
+	try {
+		await sendMessageToChannel('Nite nite!');
+	} catch (err) {
+		console.error(err);
+	}
 });
 
 app.listen(PORT, () => {
