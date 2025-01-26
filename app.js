@@ -20,7 +20,8 @@ import {
 	safeShutdown,
 	sendMessageToChannel,
 	sendMessageToServer,
-	monitorEmptyServer
+	monitorEmptyServer,
+	commandKick
 } from './palworld.js';
 
 // Create an express app
