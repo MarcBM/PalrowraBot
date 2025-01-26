@@ -49,13 +49,21 @@ const SHUTDOWN_COMMAND = {
 	type: 1
 };
 
+// Kick a player (either now or in x minutes)
+const KICK_COMMAND = {
+	name: 'kick',
+	description: 'Kick a player from the server',
+	type: 1
+};
+
 const GUILD_COMMANDS = [
 	TEST_COMMAND,
 	IP_COMMAND,
 	STATUS_COMMAND,
 	START_COMMAND,
 	PLAYERS_COMMAND,
-	SHUTDOWN_COMMAND
+	SHUTDOWN_COMMAND,
+	KICK_COMMAND
 ];
 
 const GLOBAL_COMMANDS = [];

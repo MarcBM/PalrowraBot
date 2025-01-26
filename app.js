@@ -205,8 +205,61 @@ app.post(
 				return;
 			}
 
+			// "kick" command
+			if (name === 'kick') {
+				// A message with a select menu
+				return res.send({
+					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+					data: {
+						content: 'Who would you like to kick?',
+						components: [
+							{
+								type: MessageComponentTypes.ACTION_ROW,
+								components: [
+									{
+										type: MessageComponentTypes.STRING_SELECT,
+										custom_id: 'kick_select_player',
+										options: [
+											{
+												label: 'Vuldyn',
+												value: 'steam_user_id_something'
+											},
+											{
+												label: 'Juan Sina',
+												value: 'steam_user_id_something_else'
+											},
+											{
+												label: 'Althaline',
+												value: 'steam_user_id_something_else_again'
+											}
+										]
+									}
+								]
+							}
+						]
+					}
+				});
+			}
+
 			console.error(`unknown command: ${name}`);
 			return res.status(400).json({ error: 'unknown command' });
+		}
+
+		// Handle requests from interactive components
+		if (type === InteractionType.MESSAGE_COMPONENT) {
+			const componentId = data.custom_id;
+
+			if (componentId === 'kick_select_player') {
+				console.log(req.body);
+
+				const selectedOption = data.values[0];
+				const userId = req.body.member.user.id;
+
+				return res.send({
+					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+					data: { content: `<@${userId}> selected ${selectedOption}` }
+				});
+			}
 		}
 
 		console.error('unknown interaction type', type);
