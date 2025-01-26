@@ -218,7 +218,7 @@ app.post(
 								components: [
 									{
 										type: MessageComponentTypes.STRING_SELECT,
-										custom_id: 'kick_select_player',
+										custom_id: 'kick_select_player' + req.body.message.id,
 										options: [
 											{
 												label: 'Vuldyn',
@@ -253,9 +253,21 @@ app.post(
 			// Respond to this message with another select box, this time asking for how long.
 			const componentId = data.custom_id;
 
-			if (componentId === 'kick_select_player') {
+			if (componentId.includes('kick_select_player')) {
+				const originalMessageId = componentId.replace('kick_select_player', '');
 				const selectedOption = data.values[0];
 				const userId = req.body.member.user.id;
+
+				// Delete the original message
+				const deleteEndpoint = `channels/${process.env.BOT_CHANNEL_ID}/messages/${originalMessageId}`;
+
+				try {
+					await DiscordRequest(deleteEndpoint, {
+						method: 'DELETE'
+					});
+				} catch (err) {
+					console.error(err);
+				}
 
 				return res.send({
 					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
