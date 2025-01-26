@@ -240,6 +240,7 @@ app.post('/macRestart', async function (req, res) {
 	} catch (err) {
 		console.error(err);
 	}
+	console.log('Server is currenly online:', isServerOnline());
 	if (isServerOnline()) {
 		try {
 			await sendMessageToServer('Going down for a powernap in 10 minutes!');
