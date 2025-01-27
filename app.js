@@ -217,7 +217,7 @@ app.post(
 						}
 					});
 				} else {
-					const endpoint = `interactions/${process.env.APP_ID}/${req.body.token}`;
+					const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}`;
 
 					try {
 						await res.send({
