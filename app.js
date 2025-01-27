@@ -266,6 +266,7 @@ app.post(
 						}
 					}
 				}
+				return;
 			}
 
 			console.error(`unknown command: ${name}`);
