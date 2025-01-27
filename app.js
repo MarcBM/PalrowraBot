@@ -182,8 +182,8 @@ app.post(
 
 			// "shutdown" command
 			if (name === 'shutdown') {
-				// Send a message to the channel where command was triggered from
 				const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/@original`;
+				// Send a message to the channel where command was triggered from
 				try {
 					await res.send({
 						type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
@@ -217,40 +217,54 @@ app.post(
 						}
 					});
 				} else {
+					const endpoint = `interactions/${req.body.id}/${req.body.token}/callback`;
+
+					try {
+						await res.send({
+							type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+						});
+					} catch (err) {
+						console.error(err);
+					}
+
 					// A message with a select menu
 					let options;
 
 					try {
 						options = await buildKickOptions();
-					} catch (err) {
-						console.error(err);
 
-						return res.send({
+						await DiscordRequest(endpoint, {
 							type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 							data: {
-								content: 'Error building kick options.'
+								content: 'Who would you like to kick?',
+								components: [
+									{
+										type: MessageComponentTypes.ACTION_ROW,
+										components: [
+											{
+												type: MessageComponentTypes.STRING_SELECT,
+												custom_id: 'kick_select_player',
+												options: options
+											}
+										]
+									}
+								]
 							}
 						});
-					}
-
-					return res.send({
-						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-						data: {
-							content: 'Who would you like to kick?',
-							components: [
-								{
-									type: MessageComponentTypes.ACTION_ROW,
-									components: [
-										{
-											type: MessageComponentTypes.STRING_SELECT,
-											custom_id: 'kick_select_player',
-											options: options
-										}
-									]
+					} catch (err) {
+						console.error(err);
+						const basicEndpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/@original`;
+						try {
+							await DiscordRequest(basicEndpoint, {
+								method: 'PATCH',
+								body: {
+									content: 'Error building kick options'
 								}
-							]
+							});
+						} catch (err) {
+							console.error(err);
 						}
-					});
+					}
 				}
 			}
 
