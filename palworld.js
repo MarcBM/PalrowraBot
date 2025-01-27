@@ -146,7 +146,13 @@ export async function commandKick(playerID, delay, username) {
 	// Make sure the server is running
 
 	// Send a message to the server that the player is going to be kicked.
-	console.log('Kicking player: ' + playerID + ' in ' + delay + ' minutes...');
+	console.log(
+		'Kicking player: ' +
+			getPlayerNameFromSteamId(playerID) +
+			' in ' +
+			delay +
+			' minutes...'
+	);
 	try {
 		await sendMessageToServer(
 			`${getPlayerNameFromSteamId(
@@ -163,6 +169,33 @@ export async function commandKick(playerID, delay, username) {
 	await new Promise(resolve => setTimeout(resolve, waitTime));
 
 	// Send the kick request.
+	const url = process.env.REST_URL + 'kick';
+	const message = `You were kicked by ${username} after ${delay} minutes!`;
+	let data = JSON.stringify({
+		userId: playerID,
+		message: message
+	});
+
+	let options = {
+		method: 'POST',
+		headers: {
+			Authorization:
+				`Basic ` +
+				new Buffer.from(
+					process.env.REST_USERNAME + ':' + process.env.REST_PASSWORD
+				).toString('base64'),
+			'Content-Type': 'application/json'
+		},
+		body: data
+	};
+
+	await fetch(url, options)
+		.then(response => {
+			console.log('Player kicked: ' + getPlayerNameFromSteamId(playerID));
+		})
+		.catch(err => {
+			console.log(err);
+		});
 
 	// console.log('Kicking player: ' + playerID + ' finished!');
 }
