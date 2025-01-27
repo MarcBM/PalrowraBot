@@ -222,7 +222,7 @@ app.post(
 
 					options = buildKickOptions();
 
-					return res.send(endpoint, {
+					return res.send({
 						method: 'POST',
 						body: {
 							type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
