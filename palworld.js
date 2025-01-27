@@ -146,14 +146,25 @@ export async function commandKick(playerID, delay, userID) {
 	// Make sure the server is running
 
 	// Send a message to the server that the player is going to be kicked.
-	console.log('Kicking player: ' + playerID);
+	console.log('Kicking player: ' + playerID + ' in ' + delay + ' minutes...');
+	try {
+		await sendMessageToServer(
+			`${getPlayerNameFromSteamId(
+				playerID
+			)} is being kicked in ${delay} minutes by ${userID}!`
+		);
+	} catch (err) {
+		console.error(err);
+	}
 
 	// Wait for the given delay
 	const waitTime = delay === '0' ? 5000 : delay * 1000 * 60;
-	console.log('Waiting for ' + waitTime + ' milliseconds...');
+	// console.log('Waiting for ' + waitTime + ' milliseconds...');
 	await new Promise(resolve => setTimeout(resolve, waitTime));
 
-	console.log('Kicking player: ' + playerID + ' finished!');
+	// Send the kick request.
+
+	// console.log('Kicking player: ' + playerID + ' finished!');
 }
 
 export function getPlayerNameFromSteamId(steamID) {

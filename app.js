@@ -335,9 +335,7 @@ app.post(
 				const playerToKick = componentId.replace('kick_select_time', '');
 				const username = req.body.member.user.username;
 
-				const playerName = playerToKick; // TODO: Get the player name from the player ID.
-
-				// Handle the selected response. We either need to kick the player now, or in x minutes, or cancel.
+				const playerName = getPlayerNameFromSteamId(playerToKick);
 
 				// Delete the original message
 				const deleteEndpoint = `channels/${process.env.BOT_CHANNEL_ID}/messages/${originalMessageId}`;
@@ -354,7 +352,7 @@ app.post(
 					return res.send({
 						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 						data: {
-							content: `${username} has cancelled the kick command.`
+							content: `<@${req.body.member.user.id}> has cancelled the kick command.`
 						}
 					});
 				} else {
