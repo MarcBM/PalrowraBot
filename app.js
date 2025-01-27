@@ -337,7 +337,6 @@ app.post(
 			}
 
 			if (componentId.includes('kick_select_time')) {
-				console.log(req.body.token);
 				const selectedOption = data.values[0];
 				const playerToKick = componentId.replace('kick_select_time', '');
 				const username = req.body.member.user.username;
@@ -345,22 +344,12 @@ app.post(
 
 				const playerName = getPlayerNameFromSteamId(playerToKick);
 
-				// Edit the original message
-				const deleteEndpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/@original`;
-
-				try {
-					await DiscordRequest(deleteEndpoint, {
-						method: 'DELETE'
-					});
-				} catch (err) {
-					console.error(err);
-				}
-
 				if (selectedOption === 'cancel') {
 					return res.send({
-						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+						type: InteractionResponseType.UPDATE_MESSAGE,
 						data: {
-							content: `<@${userId}> has cancelled the kick command.`
+							content: `<@${userId}> has cancelled the kick command.`,
+							components: []
 						}
 					});
 				} else {
@@ -372,13 +361,28 @@ app.post(
 					} else {
 						message = `<@${userId}> will kick ${playerName} from the server in ${selectedOption} minutes!`;
 					}
-					return res.send({
-						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-						data: {
-							content: message
-						}
-					});
+
+					// Update the message with confirmation.
+					try {
+						await res.send({
+							type: InteractionResponseType.UPDATE_MESSAGE,
+							data: {
+								content: 'As you command...',
+								components: []
+							}
+						});
+					} catch (err) {
+						console.error(err);
+					}
+
+					// Send a message to the channel where command was triggered from
+					try {
+						await sendMessageToChannel(message);
+					} catch (err) {
+						console.error(err);
+					}
 				}
+				return;
 			}
 		}
 
