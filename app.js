@@ -22,7 +22,8 @@ import {
 	sendMessageToServer,
 	monitorEmptyServer,
 	commandKick,
-	buildKickOptions
+	buildKickOptions,
+	getPlayerNameFromSteamId
 } from './palworld.js';
 
 // Create an express app
@@ -249,9 +250,6 @@ app.post(
 
 		// Handle requests from interactive components
 		if (type === InteractionType.MESSAGE_COMPONENT) {
-			// TODO:
-			// Delete the old message by packaging the message id in the initial response.
-			// This will likely need to be done for this response too.
 			// Respond to this message with another select box, this time asking for how long.
 			const componentId = data.custom_id;
 
@@ -259,9 +257,6 @@ app.post(
 				const originalMessageId = req.body.message.id;
 				const selectedOption = data.values[0];
 				const username = req.body.member.user.username;
-
-				// TODO: Decipher the selectedOption - it will be a steam userID, but we want the steam name. It could also be 'cancel'.
-				const playerName = selectedOption; // TODO: Get the player name from the player ID.
 
 				// Delete the original message
 				const deleteEndpoint = `channels/${process.env.BOT_CHANNEL_ID}/messages/${originalMessageId}`;
@@ -282,6 +277,7 @@ app.post(
 						}
 					});
 				} else {
+					const playerName = getPlayerNameFromSteamId(selectedOption);
 					return res.send({
 						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 						data: {

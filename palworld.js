@@ -156,6 +156,15 @@ export async function commandKick(playerID, delay, userID) {
 	console.log('Kicking player: ' + playerID + ' finished!');
 }
 
+export function getPlayerNameFromSteamId(steamID) {
+	let player = onlinePlayers.find(player => player.steamID === steamID);
+	if (player) {
+		return player.name;
+	} else {
+		return 'Unknown Player';
+	}
+}
+
 export async function startServer(token) {
 	// Check to see if the server is already running.
 	const status = await getServerStatus();
