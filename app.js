@@ -210,7 +210,7 @@ app.post(
 
 			// "kick" command
 			if (name === 'kick') {
-				console.log(req.body.token);
+				const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/@original`;
 				if (!isServerOnline()) {
 					return res.send({
 						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -222,28 +222,44 @@ app.post(
 					// A message with a select menu
 					let options;
 
+					try {
+						await res.send({
+							type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+						});
+					} catch (err) {
+						console.error(err);
+					}
+
 					options = buildKickOptions();
 
-					return res.send({
-						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-						data: {
-							content: 'Who would you like to kick?',
-							flags: InteractionResponseFlags.EPHEMERAL,
-							components: [
-								{
-									type: MessageComponentTypes.ACTION_ROW,
+					try {
+						await DiscordRequest(endpoint, {
+							method: 'PATCH',
+							body: {
+								type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+								data: {
+									content: 'Who would you like to kick?',
+									flags: InteractionResponseFlags.EPHEMERAL,
 									components: [
 										{
-											type: MessageComponentTypes.STRING_SELECT,
-											custom_id: 'kick_select_player',
-											options: options
+											type: MessageComponentTypes.ACTION_ROW,
+											components: [
+												{
+													type: MessageComponentTypes.STRING_SELECT,
+													custom_id: 'kick_select_player',
+													options: options
+												}
+											]
 										}
 									]
 								}
-							]
-						}
-					});
+							}
+						});
+					} catch (err) {
+						console.error(err);
+					}
 				}
+				return;
 			}
 
 			console.error(`unknown command: ${name}`);
