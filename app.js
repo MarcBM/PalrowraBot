@@ -271,25 +271,12 @@ app.post(
 			const componentId = data.custom_id;
 
 			if (componentId === 'kick_select_player') {
-				console.log(req.body.token);
-				const originalMessageId = req.body.message.id;
 				const selectedOption = data.values[0];
 				const userId = req.body.member.user.id;
 
-				// Delete the original message
-				const deleteEndpoint = `channels/${process.env.BOT_CHANNEL_ID}/messages/${originalMessageId}`;
-
-				try {
-					await DiscordRequest(deleteEndpoint, {
-						method: 'DELETE'
-					});
-				} catch (err) {
-					console.error(err);
-				}
-
 				if (selectedOption === 'cancel') {
 					return res.send({
-						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+						type: InteractionResponseType.UPDATE_MESSAGE,
 						data: {
 							content: `<@${userId}> has cancelled the kick command.`
 						}
@@ -297,7 +284,7 @@ app.post(
 				} else {
 					const playerName = getPlayerNameFromSteamId(selectedOption);
 					return res.send({
-						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+						type: InteractionResponseType.UPDATE_MESSAGE,
 						data: {
 							content: `When would you like to kick ${playerName}?`,
 							flags: InteractionResponseFlags.EPHEMERAL,
