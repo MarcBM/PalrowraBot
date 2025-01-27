@@ -339,7 +339,7 @@ export async function monitorEmptyServer() {
 		}
 
 		const currentTime = Date.now();
-		if (currentTime - lastTimePlayersSeen > emptyServerThreshold) {
+		if (currentTime - lastTimePlayersSeen > shutdownDelay) {
 			console.log('Server has been empty for 15 minutes! Shutting down...');
 			await emptyServerShutdown();
 		}
@@ -349,7 +349,7 @@ export async function monitorEmptyServer() {
 }
 
 async function emptyServerShutdown() {
-	const message = await shutdownServer();
+	const message = await safeShutdown(5);
 	if (message.includes('Error')) {
 		await sendMessageToChannel(
 			'Server was empty for too long, but had an error shutting down!'
