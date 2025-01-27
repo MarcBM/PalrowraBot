@@ -94,6 +94,8 @@ export async function getPlayerList() {
 		message = 'Error getting player list';
 	}
 
+	console.log(playerList);
+
 	if (playerList.length === 0) {
 		message = 'No players are currently online';
 	} else {
