@@ -278,7 +278,8 @@ app.post(
 					return res.send({
 						type: InteractionResponseType.UPDATE_MESSAGE,
 						data: {
-							content: `<@${userId}> has cancelled the kick command.`
+							content: `<@${userId}> has cancelled the kick command.`,
+							components: []
 						}
 					});
 				} else {
