@@ -210,6 +210,7 @@ app.post(
 
 			// "kick" command
 			if (name === 'kick') {
+				console.log(req.body.token);
 				if (!isServerOnline()) {
 					return res.send({
 						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -255,6 +256,7 @@ app.post(
 			const componentId = data.custom_id;
 
 			if (componentId === 'kick_select_player') {
+				console.log(req.body.token);
 				const originalMessageId = req.body.message.id;
 				const selectedOption = data.values[0];
 				const userId = req.body.member.user.id;
@@ -332,7 +334,7 @@ app.post(
 			}
 
 			if (componentId.includes('kick_select_time')) {
-				console.log(req.body);
+				console.log(req.body.token);
 				const selectedOption = data.values[0];
 				const playerToKick = componentId.replace('kick_select_time', '');
 				const username = req.body.member.user.username;
