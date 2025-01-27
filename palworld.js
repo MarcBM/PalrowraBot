@@ -333,8 +333,8 @@ export async function monitorEmptyServer() {
 	let lastTimePlayersSeen = Date.now();
 	while (serverOnline) {
 		// console.log('Checking for empty server...');
-		const players = await getPlayerList();
-		if (players.includes('Online Players')) {
+		const players = await requestPlayerList();
+		if (players.length > 0) {
 			// console.log('Players are online, resetting timer...');
 			lastTimePlayersSeen = Date.now();
 		} else {
