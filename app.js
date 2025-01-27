@@ -341,7 +341,7 @@ app.post(
 				const playerName = getPlayerNameFromSteamId(playerToKick);
 
 				// Edit the original message
-				const deleteEndpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/@original`;
+				const deleteEndpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
 
 				try {
 					await DiscordRequest(deleteEndpoint, {
