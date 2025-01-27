@@ -236,22 +236,20 @@ app.post(
 						await DiscordRequest(endpoint, {
 							method: 'PATCH',
 							body: {
-								content: {
-									message: 'Who would you like to kick?',
-									flags: InteractionResponseFlags.EPHEMERAL,
-									components: [
-										{
-											type: MessageComponentTypes.ACTION_ROW,
-											components: [
-												{
-													type: MessageComponentTypes.STRING_SELECT,
-													custom_id: 'kick_select_player',
-													options: options
-												}
-											]
-										}
-									]
-								}
+								content: 'Who would you like to kick?',
+								flags: InteractionResponseFlags.EPHEMERAL,
+								components: [
+									{
+										type: MessageComponentTypes.ACTION_ROW,
+										components: [
+											{
+												type: MessageComponentTypes.STRING_SELECT,
+												custom_id: 'kick_select_player',
+												options: options
+											}
+										]
+									}
+								]
 							}
 						});
 					} catch (err) {
