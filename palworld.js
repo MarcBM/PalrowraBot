@@ -10,6 +10,8 @@ let serverOnline = false;
 
 let onlinePlayers = [];
 
+let kicksInProgress = [];
+
 export function isServerOnline() {
 	return serverOnline;
 }
@@ -163,39 +165,50 @@ export async function commandKick(playerID, delay, username) {
 		console.error(err);
 	}
 
+	// Add this kick to the list of kicks in progress.
+	kicksInProgress.push(playerID);
+
 	// Wait for the given delay
 	const waitTime = delay === '0' ? 5000 : delay * 1000 * 60;
 	// console.log('Waiting for ' + waitTime + ' milliseconds...');
 	await new Promise(resolve => setTimeout(resolve, waitTime));
 
-	// Send the kick request.
-	const url = process.env.REST_URL + 'kick';
-	const message = `You were kicked by ${username} after ${delay} minutes!`;
-	let data = JSON.stringify({
-		userId: playerID,
-		message: message
-	});
-
-	let options = {
-		method: 'POST',
-		headers: {
-			Authorization:
-				`Basic ` +
-				new Buffer.from(
-					process.env.REST_USERNAME + ':' + process.env.REST_PASSWORD
-				).toString('base64'),
-			'Content-Type': 'application/json'
-		},
-		body: data
-	};
-
-	await fetch(url, options)
-		.then(response => {
-			console.log('Player kicked: ' + getPlayerNameFromSteamId(playerID));
-		})
-		.catch(err => {
-			console.log(err);
+	// If the kick is still in progress, kick the player.
+	if (kicksInProgress.includes(playerID)) {
+		// Send the kick request.
+		const url = process.env.REST_URL + 'kick';
+		const message = `You were kicked by ${username} after ${delay} minutes!`;
+		let data = JSON.stringify({
+			userId: playerID,
+			message: message
 		});
+
+		let options = {
+			method: 'POST',
+			headers: {
+				Authorization:
+					`Basic ` +
+					new Buffer.from(
+						process.env.REST_USERNAME + ':' + process.env.REST_PASSWORD
+					).toString('base64'),
+				'Content-Type': 'application/json'
+			},
+			body: data
+		};
+
+		await fetch(url, options)
+			.then(response => {
+				console.log('Player kicked: ' + getPlayerNameFromSteamId(playerID));
+			})
+			.catch(err => {
+				console.log(err);
+			});
+
+		// Remove the kick from the list of kicks in progress.
+		kicksInProgress = kicksInProgress.filter(kick => kick !== playerID);
+
+		console.log(kicksInProgress);
+	}
 
 	// console.log('Kicking player: ' + playerID + ' finished!');
 }
