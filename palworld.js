@@ -114,7 +114,7 @@ export async function buildKickOptions() {
 
 	// Get the list of online players
 	try {
-		onlinePlayers = (await requestPlayerList()) || [];
+		onlinePlayers = await requestPlayerList();
 	} catch (err) {
 		console.error(err);
 	}
@@ -335,7 +335,7 @@ export async function monitorEmptyServer() {
 	let lastTimePlayersSeen = Date.now();
 	while (serverOnline) {
 		// console.log('Checking for empty server...');
-		const players = (await requestPlayerList()) || [];
+		const players = await requestPlayerList();
 		// console.log(players);
 		if (players.length > 0) {
 			// console.log('Players are online, resetting timer...');
