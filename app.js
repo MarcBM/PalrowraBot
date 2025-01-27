@@ -273,7 +273,7 @@ app.post(
 					return res.send({
 						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 						data: {
-							content: `${userId} has cancelled the kick command.`
+							content: `<@${userId}> has cancelled the kick command.`
 						}
 					});
 				} else {
