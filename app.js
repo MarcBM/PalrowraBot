@@ -221,7 +221,10 @@ app.post(
 
 					try {
 						await res.send({
-							type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+							type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+							data: {
+								content: 'Building the kick command...'
+							}
 						});
 					} catch (err) {
 						console.error(err);
