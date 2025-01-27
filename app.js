@@ -402,7 +402,7 @@ app.use(bodyParser.json());
 app.post('/startUpdate', async function (req, res) {
 	const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/@original`;
 	const message = req.body.message;
-	const startUpdateDelay = 5000;
+	const startUpdateDelay = 7000;
 	await new Promise(resolve => setTimeout(resolve, startUpdateDelay));
 	try {
 		DiscordRequest(endpoint, {

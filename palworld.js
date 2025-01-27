@@ -74,8 +74,8 @@ async function requestPlayerList() {
 	await fetch(url, options)
 		.then(response => response.json())
 		.then(data => {
-			console.log(data);
-			console.log(data.players);
+			// console.log(data);
+			// console.log(data.players);
 			return data.players;
 		})
 		.catch(err => {
@@ -89,7 +89,7 @@ export async function getPlayerList() {
 	try {
 		let playerList = (await requestPlayerList()) || [];
 
-		console.log(playerList);
+		// console.log(playerList);
 
 		if (playerList.length === 0) {
 			message = 'No players are currently online';
@@ -334,7 +334,7 @@ export async function monitorEmptyServer() {
 	while (serverOnline) {
 		// console.log('Checking for empty server...');
 		const players = (await requestPlayerList()) || [];
-		console.log(players);
+		// console.log(players);
 		if (players.length > 0) {
 			// console.log('Players are online, resetting timer...');
 			lastTimePlayersSeen = Date.now();
@@ -343,7 +343,7 @@ export async function monitorEmptyServer() {
 		}
 
 		const currentTime = Date.now();
-		if (currentTime - lastTimePlayersSeen > shutdownDelay) {
+		if (currentTime - lastTimePlayersSeen > emptyServerThreshold) {
 			console.log('Server has been empty for 15 minutes! Shutting down...');
 			await emptyServerShutdown();
 		}
