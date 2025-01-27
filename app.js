@@ -218,7 +218,21 @@ app.post(
 					});
 				} else {
 					// A message with a select menu
-					// TODO: Build select menu only from online players.
+					let options;
+
+					try {
+						options = await buildKickOptions();
+					} catch (err) {
+						console.error(err);
+
+						return res.send({
+							type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+							data: {
+								content: 'Error building kick options.'
+							}
+						});
+					}
+
 					return res.send({
 						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 						data: {
@@ -230,7 +244,7 @@ app.post(
 										{
 											type: MessageComponentTypes.STRING_SELECT,
 											custom_id: 'kick_select_player',
-											options: buildKickOptions()
+											options: options
 										}
 									]
 								}

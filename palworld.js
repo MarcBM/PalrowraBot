@@ -8,8 +8,6 @@ const safeShutdownDelay = 1000 * 3; // 3 seconds
 
 let serverOnline = false;
 
-let onlinePlayers = [];
-
 export function isServerOnline() {
 	return serverOnline;
 }
@@ -58,7 +56,7 @@ export async function getServerStatus() {
 	return message;
 }
 
-export async function getPlayerList() {
+async function requestPlayerList() {
 	const url = process.env.REST_URL + 'players';
 
 	let options = {
@@ -73,46 +71,49 @@ export async function getPlayerList() {
 		}
 	};
 
-	let message;
 	await fetch(url, options)
 		.then(response => response.json())
 		.then(data => {
-			let players = data.players;
-			// Update the list of online players
-			updatePlayerList(players);
-			// console.log(players.length);
-			if (players.length === 0) {
-				message = 'No players are currently online';
-			} else {
-				let playerList = '';
-				players.forEach(player => {
-					playerList += `\t\t**${player.name}**\n`;
-				});
-				message = `Online Players:\n${playerList}`;
-			}
-			serverOnline = true;
+			return data.players;
 		})
 		.catch(err => {
-			message = 'Server is currently offline';
-			serverOnline = false;
+			console.log(err);
+			return [];
 		});
+}
+
+export async function getPlayerList() {
+	let message;
+	let playerList;
+	try {
+		playerList = await requestPlayerList();
+	} catch (err) {
+		console.error(err);
+		message = 'Error getting player list';
+	}
+
+	if (playerList.length === 0) {
+		message = 'No players are currently online';
+	} else {
+		let players = playerList.map(player => player.name);
+		message = `Online Players:\n${players.join('\n')}`;
+	}
+
 	return message;
 }
 
-function updatePlayerList(players) {
-	let newOnlinePlayers = [];
-	players.forEach(player => {
-		newOnlinePlayers.push({
-			name: player.name,
-			steamID: player.userId
-		});
-	});
-
-	onlinePlayers = newOnlinePlayers;
-}
-
-export function buildKickOptions() {
+export async function buildKickOptions() {
 	let options = [];
+
+	let onlinePlayers = [];
+
+	// Get the list of online players
+	try {
+		onlinePlayers = await requestPlayerList();
+	} catch (err) {
+		console.error(err);
+	}
+
 	onlinePlayers.forEach(player => {
 		options.push({
 			label: player.name,
