@@ -225,6 +225,7 @@ app.post(
 
 					return res.send({
 						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+						flags: InteractionResponseFlags.EPHEMERAL,
 						data: {
 							content: 'Who would you like to kick?',
 							components: [
@@ -280,6 +281,7 @@ app.post(
 					const playerName = getPlayerNameFromSteamId(selectedOption);
 					return res.send({
 						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+						flags: InteractionResponseFlags.EPHEMERAL,
 						data: {
 							content: `When would you like to kick ${playerName}?`,
 							components: [
