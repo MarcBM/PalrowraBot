@@ -168,6 +168,8 @@ export async function commandKick(playerID, delay, username) {
 	// Add this kick to the list of kicks in progress.
 	kicksInProgress.push(playerID);
 
+	console.log(kicksInProgress);
+
 	// Wait for the given delay
 	const waitTime = delay === '0' ? 5000 : delay * 1000 * 60;
 	// console.log('Waiting for ' + waitTime + ' milliseconds...');
