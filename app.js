@@ -217,7 +217,7 @@ app.post(
 						}
 					});
 				} else {
-					const endpoint = `interactions/${req.body.id}/${req.body.token}/callback`;
+					const endpoint = `interactions/${req.body.id}/${req.body.token}`;
 
 					try {
 						await res.send({
