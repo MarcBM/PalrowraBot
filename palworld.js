@@ -59,6 +59,8 @@ export async function getServerStatus() {
 async function requestPlayerList() {
 	const url = process.env.REST_URL + 'players';
 
+	let players = [];
+
 	let options = {
 		method: 'GET',
 		headers: {
@@ -75,12 +77,13 @@ async function requestPlayerList() {
 		.then(response => response.json())
 		.then(data => {
 			console.log(data.players);
-			return data.players;
+			players = data.players;
 		})
 		.catch(err => {
 			console.log(err);
-			return [];
 		});
+
+	return players;
 }
 
 export async function getPlayerList() {
