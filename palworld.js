@@ -76,7 +76,7 @@ async function requestPlayerList() {
 	await fetch(url, options)
 		.then(response => response.json())
 		.then(data => {
-			console.log(data.players);
+			// console.log(data.players);
 			players = data.players;
 		})
 		.catch(err => {
@@ -91,7 +91,7 @@ export async function getPlayerList() {
 	try {
 		let playerList = await requestPlayerList();
 
-		console.log(playerList);
+		// console.log(playerList);
 
 		if (playerList.length === 0) {
 			message = 'No players are currently online';
