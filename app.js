@@ -23,7 +23,9 @@ import {
 	monitorEmptyServer,
 	commandKick,
 	buildKickOptions,
-	getPlayerNameFromSteamId
+	getPlayerNameFromSteamId,
+	buildCancelKickOptions,
+	cancelKick
 } from './palworld.js';
 
 // Create an express app
@@ -261,6 +263,50 @@ app.post(
 				return;
 			}
 
+			// "cancel kick" command
+			if (name === 'cancel-kick') {
+				const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/@original`;
+				// A message with a select menu
+				let options;
+
+				try {
+					await res.send({
+						type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+						data: {
+							flags: InteractionResponseFlags.EPHEMERAL
+						}
+					});
+				} catch (err) {
+					console.error(err);
+				}
+
+				options = buildCancelKickOptions();
+
+				try {
+					await DiscordRequest(endpoint, {
+						method: 'PATCH',
+						body: {
+							content: 'Which player would you like to cancel the kick for?',
+							components: [
+								{
+									type: MessageComponentTypes.ACTION_ROW,
+									components: [
+										{
+											type: MessageComponentTypes.STRING_SELECT,
+											custom_id: 'cancel_kick_select_player',
+											options: options
+										}
+									]
+								}
+							]
+						}
+					});
+				} catch (err) {
+					console.error(err);
+				}
+				return;
+			}
+
 			console.error(`unknown command: ${name}`);
 			return res.status(400).json({ error: 'unknown command' });
 		}
@@ -378,6 +424,54 @@ app.post(
 					// Send a message to the channel where command was triggered from
 					try {
 						await sendMessageToChannel(message);
+					} catch (err) {
+						console.error(err);
+					}
+				}
+				return;
+			}
+
+			if (componentId === 'cancel_kick_select_player') {
+				const selectedOption = data.values[0];
+				const userId = req.body.member.user.id;
+				const username = req.body.member.user.username;
+
+				if (selectedOption === 'cancel') {
+					return res.send({
+						type: InteractionResponseType.UPDATE_MESSAGE,
+						data: {
+							content: `<@${userId}> has cancelled the cancel kick command. IT'S CANCEL-CEPTION!`,
+							components: []
+						}
+					});
+				} else {
+					const playerName = getPlayerNameFromSteamId(selectedOption);
+
+					// Cancel the kick
+					try {
+						await cancelKick(selectedOption, username);
+					} catch (err) {
+						console.error(err);
+					}
+
+					// Update the message with confirmation.
+					try {
+						await res.send({
+							type: InteractionResponseType.UPDATE_MESSAGE,
+							data: {
+								content: 'As you command...',
+								components: []
+							}
+						});
+					} catch (err) {
+						console.error(err);
+					}
+
+					// Send a message to the channel where command was triggered from
+					try {
+						await sendMessageToChannel(
+							`<@${userId}> has cancelled the kick for ${playerName}!`
+						);
 					} catch (err) {
 						console.error(err);
 					}

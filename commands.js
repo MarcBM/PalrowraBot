@@ -56,6 +56,12 @@ const KICK_COMMAND = {
 	type: 1
 };
 
+const CANCEL_KICK_COMMAND = {
+	name: 'cancel-kick',
+	description: 'Cancel a kick command',
+	type: 1
+};
+
 const GUILD_COMMANDS = [
 	TEST_COMMAND,
 	IP_COMMAND,

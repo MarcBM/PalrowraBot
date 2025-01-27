@@ -144,6 +144,24 @@ export function buildKickOptions() {
 	return options;
 }
 
+export function buildCancelKickOptions() {
+	let options = [];
+
+	kicksInProgress.forEach(playerID => {
+		options.push({
+			label: getPlayerNameFromSteamId(playerID),
+			value: playerID
+		});
+	});
+
+	options.push({
+		label: 'Nevermind!',
+		value: 'cancel'
+	});
+
+	return options;
+}
+
 export async function commandKick(playerID, delay, username) {
 	// Make sure the server is running
 
@@ -213,6 +231,20 @@ export async function commandKick(playerID, delay, username) {
 	}
 
 	// console.log('Kicking player: ' + playerID + ' finished!');
+}
+
+export async function cancelKick(playerID, username) {
+	kicksInProgress = kicksInProgress.filter(kick => kick !== playerID);
+
+	try {
+		await sendMessageToServer(
+			`${getPlayerNameFromSteamId(
+				playerID
+			)}'s scheduled kick has been cancelled by ${username}.`
+		);
+	} catch (err) {
+		console.error(err);
+	}
 }
 
 export function getPlayerNameFromSteamId(steamID) {
