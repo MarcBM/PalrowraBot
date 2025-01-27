@@ -86,9 +86,8 @@ async function requestPlayerList() {
 
 export async function getPlayerList() {
 	let message;
-	let playerList;
 	try {
-		playerList = await requestPlayerList();
+		let playerList = await requestPlayerList();
 
 		console.log(playerList);
 
