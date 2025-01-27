@@ -224,7 +224,10 @@ app.post(
 
 					try {
 						await res.send({
-							type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+							type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+							data: {
+								flags: InteractionResponseFlags.EPHEMERAL
+							}
 						});
 					} catch (err) {
 						console.error(err);
@@ -237,7 +240,6 @@ app.post(
 							method: 'PATCH',
 							body: {
 								content: 'Who would you like to kick?',
-								flags: InteractionResponseFlags.EPHEMERAL,
 								components: [
 									{
 										type: MessageComponentTypes.ACTION_ROW,
