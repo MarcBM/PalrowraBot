@@ -256,7 +256,7 @@ app.post(
 			if (componentId === 'kick_select_player') {
 				const originalMessageId = req.body.message.id;
 				const selectedOption = data.values[0];
-				const username = req.body.member.user.username;
+				const userId = req.body.member.user.id;
 
 				// Delete the original message
 				const deleteEndpoint = `channels/${process.env.BOT_CHANNEL_ID}/messages/${originalMessageId}`;
@@ -273,7 +273,7 @@ app.post(
 					return res.send({
 						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 						data: {
-							content: `${username} has cancelled the kick command.`
+							content: `${userId} has cancelled the kick command.`
 						}
 					});
 				} else {
@@ -334,6 +334,7 @@ app.post(
 				const selectedOption = data.values[0];
 				const playerToKick = componentId.replace('kick_select_time', '');
 				const username = req.body.member.user.username;
+				const userId = req.body.member.user.id;
 
 				const playerName = getPlayerNameFromSteamId(playerToKick);
 
@@ -352,7 +353,7 @@ app.post(
 					return res.send({
 						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 						data: {
-							content: `<@${req.body.member.user.id}> has cancelled the kick command.`
+							content: `<@${userId}> has cancelled the kick command.`
 						}
 					});
 				} else {
@@ -360,9 +361,9 @@ app.post(
 					commandKick(playerToKick, selectedOption, username);
 					let message;
 					if (selectedOption === '0') {
-						message = `${username} is kicking ${playerName} from the server!`;
+						message = `<@${userId}> is kicking ${playerName} from the server!`;
 					} else {
-						message = `${username} will kick ${playerName} from the server in ${selectedOption} minutes!`;
+						message = `<@${userId}> will kick ${playerName} from the server in ${selectedOption} minutes!`;
 					}
 					return res.send({
 						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,

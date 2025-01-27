@@ -142,7 +142,7 @@ export function buildKickOptions() {
 	return options;
 }
 
-export async function commandKick(playerID, delay, userID) {
+export async function commandKick(playerID, delay, username) {
 	// Make sure the server is running
 
 	// Send a message to the server that the player is going to be kicked.
@@ -151,7 +151,7 @@ export async function commandKick(playerID, delay, userID) {
 		await sendMessageToServer(
 			`${getPlayerNameFromSteamId(
 				playerID
-			)} is being kicked in ${delay} minutes by ${userID}!`
+			)} is being kicked in ${delay} minutes by ${username}!`
 		);
 	} catch (err) {
 		console.error(err);
