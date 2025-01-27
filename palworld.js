@@ -112,7 +112,7 @@ export async function buildKickOptions() {
 
 	// Get the list of online players
 	try {
-		onlinePlayers = await requestPlayerList();
+		onlinePlayers = (await requestPlayerList()) || [];
 	} catch (err) {
 		console.error(err);
 	}
