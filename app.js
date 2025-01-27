@@ -234,21 +234,24 @@ app.post(
 						options = await buildKickOptions();
 
 						await DiscordRequest(endpoint, {
-							type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-							data: {
-								content: 'Who would you like to kick?',
-								components: [
-									{
-										type: MessageComponentTypes.ACTION_ROW,
-										components: [
-											{
-												type: MessageComponentTypes.STRING_SELECT,
-												custom_id: 'kick_select_player',
-												options: options
-											}
-										]
-									}
-								]
+							method: 'POST',
+							body: {
+								type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+								data: {
+									content: 'Who would you like to kick?',
+									components: [
+										{
+											type: MessageComponentTypes.ACTION_ROW,
+											components: [
+												{
+													type: MessageComponentTypes.STRING_SELECT,
+													custom_id: 'kick_select_player',
+													options: options
+												}
+											]
+										}
+									]
+								}
 							}
 						});
 					} catch (err) {
