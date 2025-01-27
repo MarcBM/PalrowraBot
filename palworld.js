@@ -89,18 +89,18 @@ export async function getPlayerList() {
 	let playerList;
 	try {
 		playerList = await requestPlayerList();
+
+		console.log(playerList);
+
+		if (playerList.length === 0) {
+			message = 'No players are currently online';
+		} else {
+			let players = playerList.map(player => player.name);
+			message = `Online Players:\n${players.join('\n')}`;
+		}
 	} catch (err) {
 		console.error(err);
 		message = 'Error getting player list';
-	}
-
-	console.log(playerList);
-
-	if (playerList.length === 0) {
-		message = 'No players are currently online';
-	} else {
-		let players = playerList.map(player => player.name);
-		message = `Online Players:\n${players.join('\n')}`;
 	}
 
 	return message;
