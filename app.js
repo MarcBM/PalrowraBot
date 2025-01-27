@@ -340,13 +340,15 @@ app.post(
 				const playerName = getPlayerNameFromSteamId(playerToKick);
 
 				// Edit the original message
-				const edit = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/@original`;
+				const editEndpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/@original`;
+
+				const editMessage = `Kicking ${playerName} in ${selectedOption} minutes!`;
 
 				try {
-					await DiscordRequest(edit, {
+					await DiscordRequest(editEndpoint, {
 						method: 'PATCH',
 						body: {
-							content: `Kicking ${playerName} in ${selectedOption} minutes!`
+							content: editMessage
 						}
 					});
 				} catch (err) {
