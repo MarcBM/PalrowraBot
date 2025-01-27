@@ -8,6 +8,8 @@ const safeShutdownDelay = 1000 * 3; // 3 seconds
 
 let serverOnline = false;
 
+let onlinePlayers = [];
+
 export function isServerOnline() {
 	return serverOnline;
 }
@@ -83,6 +85,8 @@ async function requestPlayerList() {
 			console.log(err);
 		});
 
+	updateOnlinePlayers(players);
+
 	return players;
 }
 
@@ -107,17 +111,21 @@ export async function getPlayerList() {
 	return message;
 }
 
-export async function buildKickOptions() {
+function updateOnlinePlayers(players) {
+	let newOnlinePlayers = [];
+
+	players.forEach(player => {
+		newOnlinePlayers.push({
+			name: player.name,
+			steamID: player.userId
+		});
+	});
+
+	onlinePlayers = newOnlinePlayers;
+}
+
+export function buildKickOptions() {
 	let options = [];
-
-	let onlinePlayers = [];
-
-	// Get the list of online players
-	try {
-		onlinePlayers = await requestPlayerList();
-	} catch (err) {
-		console.error(err);
-	}
 
 	onlinePlayers.forEach(player => {
 		options.push({

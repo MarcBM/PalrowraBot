@@ -217,62 +217,33 @@ app.post(
 						}
 					});
 				} else {
-					const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}`;
-
-					try {
-						await res.send({
-							type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-							data: {
-								content: 'Building the kick command...'
-							}
-						});
-					} catch (err) {
-						console.error(err);
-					}
-
 					// A message with a select menu
 					let options;
 
-					try {
-						options = await buildKickOptions();
+					options = buildKickOptions();
 
-						await DiscordRequest(endpoint, {
-							method: 'POST',
-							body: {
-								type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-								data: {
-									content: 'Who would you like to kick?',
-									components: [
-										{
-											type: MessageComponentTypes.ACTION_ROW,
-											components: [
-												{
-													type: MessageComponentTypes.STRING_SELECT,
-													custom_id: 'kick_select_player',
-													options: options
-												}
-											]
-										}
-									]
-								}
+					return res.send(endpoint, {
+						method: 'POST',
+						body: {
+							type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+							data: {
+								content: 'Who would you like to kick?',
+								components: [
+									{
+										type: MessageComponentTypes.ACTION_ROW,
+										components: [
+											{
+												type: MessageComponentTypes.STRING_SELECT,
+												custom_id: 'kick_select_player',
+												options: options
+											}
+										]
+									}
+								]
 							}
-						});
-					} catch (err) {
-						console.error(err);
-						const basicEndpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/@original`;
-						try {
-							await DiscordRequest(basicEndpoint, {
-								method: 'PATCH',
-								body: {
-									content: 'Error building kick options'
-								}
-							});
-						} catch (err) {
-							console.error(err);
 						}
-					}
+					});
 				}
-				return;
 			}
 
 			console.error(`unknown command: ${name}`);
