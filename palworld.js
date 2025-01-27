@@ -74,7 +74,6 @@ async function requestPlayerList() {
 	await fetch(url, options)
 		.then(response => response.json())
 		.then(data => {
-			console.log(data);
 			console.log(data.players);
 			return data.players;
 		})
