@@ -332,7 +332,6 @@ app.post(
 			}
 
 			if (componentId.includes('kick_select_time')) {
-				const originalMessageId = req.body.message.id;
 				const selectedOption = data.values[0];
 				const playerToKick = componentId.replace('kick_select_time', '');
 				const username = req.body.member.user.username;
@@ -340,12 +339,15 @@ app.post(
 
 				const playerName = getPlayerNameFromSteamId(playerToKick);
 
-				// Delete the original message
-				const deleteEndpoint = `channels/${process.env.BOT_CHANNEL_ID}/messages/${originalMessageId}`;
+				// Edit the original message
+				const edit = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/@original`;
 
 				try {
-					await DiscordRequest(deleteEndpoint, {
-						method: 'DELETE'
+					await DiscordRequest(edit, {
+						method: 'PATCH',
+						body: {
+							content: `Kicking ${playerName} in ${selectedOption} minutes!`
+						}
 					});
 				} catch (err) {
 					console.error(err);
